@@ -474,11 +474,10 @@ public struct Gemma3Configuration: Codable, Sendable {
         public let _rmsNormEps: Float?
         public var rmsNormEps: Float { _rmsNormEps ?? 1e-6 }
 
-        enum CodingKeys: String, CodingKey {
+        private enum CodingKeys: String, CodingKey {
             case hiddenSize = "hidden_size"
             case intermediateSize = "intermediate_size"
             case hiddenLayers = "num_hidden_layers"
-            // Try multiple possible key names for attention heads
             case attentionHeads = "num_attention_heads" 
             case attentionHeadsAlt1 = "n_heads"
             case attentionHeadsAlt2 = "attention_heads"
@@ -544,7 +543,7 @@ public struct Gemma3Configuration: Codable, Sendable {
         public let patchSize: Int
         public let useCLS: Bool
         
-        enum CodingKeys: String, CodingKey {
+        private enum CodingKeys: String, CodingKey {
             case hiddenSize = "hidden_size"
             case intermediateSize = "intermediate_size"
             case numHiddenLayers = "num_hidden_layers"
@@ -593,13 +592,12 @@ public struct Gemma3Configuration: Codable, Sendable {
     public let visionConfiguration: VisionConfiguration
     public let vocabularySize: Int
     
-    enum CodingKeys: String, CodingKey {
+    private enum CodingKeys: String, CodingKey {
         case textConfiguration = "text_config"
         case visionConfiguration = "vision_config"
         case vocabularySize = "vocab_size"
     }
     
-    // Make model-level vocabulary size optional, falling back to text config value
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
