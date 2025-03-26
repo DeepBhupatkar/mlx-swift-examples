@@ -478,12 +478,60 @@ public struct Gemma3Configuration: Codable, Sendable {
             case hiddenSize = "hidden_size"
             case intermediateSize = "intermediate_size"
             case hiddenLayers = "num_hidden_layers"
-            case attentionHeads = "num_attention_heads"
+            // Try multiple possible key names for attention heads
+            case attentionHeads = "num_attention_heads" 
+            case attentionHeadsAlt1 = "n_heads"
+            case attentionHeadsAlt2 = "attention_heads"
             case kvHeads = "num_key_value_heads"
+            case kvHeadsAlt = "kv_heads"
             case ropeTheta = "rope_theta"
             case ropeTraditional = "rope_traditional"
             case vocabularySize = "vocab_size"
             case _rmsNormEps = "rms_norm_eps"
+        }
+        
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            
+            hiddenSize = try container.decode(Int.self, forKey: .hiddenSize)
+            
+            // Handle optional fields with defaults
+            if let intermediateSizeValue = try? container.decode(Int.self, forKey: .intermediateSize) {
+                intermediateSize = intermediateSizeValue
+            } else {
+                // Common default: 4x the hidden size
+                intermediateSize = hiddenSize * 4
+            }
+            
+            hiddenLayers = try container.decode(Int.self, forKey: .hiddenLayers)
+            
+            // Try different keys for attention heads
+            if let heads = try? container.decode(Int.self, forKey: .attentionHeads) {
+                attentionHeads = heads
+            } else if let heads = try? container.decode(Int.self, forKey: .attentionHeadsAlt1) {
+                attentionHeads = heads
+            } else if let heads = try? container.decode(Int.self, forKey: .attentionHeadsAlt2) {
+                attentionHeads = heads
+            } else {
+                // Default to a reasonable value based on hidden size
+                attentionHeads = hiddenSize / 64
+            }
+            
+            // Try different keys for KV heads
+            if let heads = try? container.decode(Int.self, forKey: .kvHeads) {
+                kvHeads = heads
+            } else if let heads = try? container.decode(Int.self, forKey: .kvHeadsAlt) {
+                kvHeads = heads
+            } else {
+                // Default to same as attention heads
+                kvHeads = attentionHeads
+            }
+            
+            // Try to decode or provide reasonable defaults
+            ropeTheta = try container.decodeIfPresent(Float.self, forKey: .ropeTheta) ?? 10000.0
+            ropeTraditional = try container.decodeIfPresent(Bool.self, forKey: .ropeTraditional) ?? false
+            vocabularySize = try container.decode(Int.self, forKey: .vocabularySize)
+            _rmsNormEps = try container.decodeIfPresent(Float.self, forKey: ._rmsNormEps)
         }
     }
     
@@ -501,9 +549,43 @@ public struct Gemma3Configuration: Codable, Sendable {
             case intermediateSize = "intermediate_size"
             case numHiddenLayers = "num_hidden_layers"
             case attentionHeads = "num_attention_heads"
+            case attentionHeadsAlt1 = "n_heads"
+            case attentionHeadsAlt2 = "attention_heads"
             case imageSize = "image_size"
             case patchSize = "patch_size"
             case useCLS = "use_cls_token"
+        }
+        
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            
+            hiddenSize = try container.decode(Int.self, forKey: .hiddenSize)
+            
+            // Handle optional fields with defaults
+            if let intermediateSizeValue = try? container.decode(Int.self, forKey: .intermediateSize) {
+                intermediateSize = intermediateSizeValue
+            } else {
+                // Common default: 4x the hidden size
+                intermediateSize = hiddenSize * 4
+            }
+            
+            numHiddenLayers = try container.decode(Int.self, forKey: .numHiddenLayers)
+            
+            // Try different keys for attention heads
+            if let heads = try? container.decode(Int.self, forKey: .attentionHeads) {
+                attentionHeads = heads
+            } else if let heads = try? container.decode(Int.self, forKey: .attentionHeadsAlt1) {
+                attentionHeads = heads
+            } else if let heads = try? container.decode(Int.self, forKey: .attentionHeadsAlt2) {
+                attentionHeads = heads
+            } else {
+                // Default to a reasonable value based on hidden size
+                attentionHeads = hiddenSize / 64
+            }
+            
+            imageSize = try container.decode(Int.self, forKey: .imageSize)
+            patchSize = try container.decode(Int.self, forKey: .patchSize)
+            useCLS = try container.decodeIfPresent(Bool.self, forKey: .useCLS) ?? true
         }
     }
     
@@ -515,6 +597,21 @@ public struct Gemma3Configuration: Codable, Sendable {
         case textConfiguration = "text_config"
         case visionConfiguration = "vision_config"
         case vocabularySize = "vocab_size"
+    }
+    
+    // Make model-level vocabulary size optional, falling back to text config value
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        textConfiguration = try container.decode(TextConfiguration.self, forKey: .textConfiguration)
+        visionConfiguration = try container.decode(VisionConfiguration.self, forKey: .visionConfiguration)
+        
+        // If vocab_size at the top level doesn't exist, fall back to the text config's value
+        if let vocabSize = try? container.decode(Int.self, forKey: .vocabularySize) {
+            vocabularySize = vocabSize
+        } else {
+            vocabularySize = textConfiguration.vocabularySize
+        }
     }
 }
 
