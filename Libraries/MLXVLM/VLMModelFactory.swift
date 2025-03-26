@@ -83,6 +83,7 @@ public class VLMTypeRegistry: ModelTypeRegistry, @unchecked Sendable {
             "qwen2_vl": create(Qwen2VLConfiguration.self, Qwen2VL.init),
             "idefics3": create(Idefics3Configuration.self, Idefics3.init),
             "smolvlm": create(SmolVLM2Configuration.self, SmolVLM2.init),
+            "gemma3": create(Gemma3Configuration.self, Gemma3.init),
         ]
     }
 
@@ -105,6 +106,8 @@ public class VLMProcessorTypeRegistry: ProcessorTypeRegistry, @unchecked Sendabl
                 Idefics3ProcessorConfiguration.self, Idefics3Processor.init),
             "SmolVLMProcessor": create(
                 SmolVLMProcessorConfiguration.self, SmolVLMProcessor.init),
+            "Gemma3Processor": create(
+                Gemma3ProcessorConfiguration.self, Gemma3Processor.init),
         ]
     }
 
@@ -137,11 +140,29 @@ public class VLMRegistry: AbstractModelRegistry, @unchecked Sendable {
             "What is the main action or notable event happening in this segment? Describe it in one brief sentence."
     )
 
+    static public let gemma3_4b_it_4bit = ModelConfiguration(
+        id: "mlx-community/gemma-3-4b-it-4bit",
+        defaultPrompt: "Describe the image in English"
+    )
+
+    static public let gemma3_12b_it_8bit = ModelConfiguration(
+        id: "mlx-community/gemma-3-12b-it-8bit",
+        defaultPrompt: "Describe the image in English"
+    )
+
+    static public let gemma3_27b_it_8bit = ModelConfiguration(
+        id: "mlx-community/gemma-3-27b-it-8bit",
+        defaultPrompt: "Describe the image in English"
+    )
+
     static private func all() -> [ModelConfiguration] {
         [
             paligemma3bMix448_8bit,
             qwen2VL2BInstruct4Bit,
             smolvlm,
+            gemma3_4b_it_4bit,
+            gemma3_12b_it_8bit,
+            gemma3_27b_it_8bit,
         ]
     }
 
