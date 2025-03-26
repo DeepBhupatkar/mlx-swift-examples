@@ -196,7 +196,7 @@ private enum Language {
             self.model = GemmaModel(args)
 
             self.kvHeads = (0 ..< args.hiddenLayers).map { _ in args.kvHeads }
-            self.headDim = .single(args.hiddenSize / args.attentionHeads)
+            self.headDim = IntOrPair(args.hiddenSize / args.attentionHeads)
         }
 
         public func callAsFunction(
@@ -382,9 +382,9 @@ private enum Vision {
             self._projection.wrappedValue = Conv2d(
                 inputChannels: 3,
                 outputChannels: config.hiddenSize,
-                kernelSize: .single(config.patchSize),
-                stride: .single(config.patchSize),
-                padding: .single(0),
+                kernelSize: IntOrPair(config.patchSize),
+                stride: IntOrPair(config.patchSize),
+                padding: IntOrPair(0),
                 bias: true
             )
         }
