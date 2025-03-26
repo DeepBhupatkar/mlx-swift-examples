@@ -196,7 +196,7 @@ private enum Language {
             self.model = GemmaModel(args)
 
             self.kvHeads = (0 ..< args.hiddenLayers).map { _ in args.kvHeads }
-            self.headDim = args.hiddenSize / args.attentionHeads
+            self.headDim = .single(args.hiddenSize / args.attentionHeads)
         }
 
         public func callAsFunction(
@@ -380,11 +380,11 @@ private enum Vision {
             self.config = config
             
             self._projection.wrappedValue = Conv2d(
-                inChannels: 3,
-                outChannels: config.hiddenSize,
-                kernelSize: config.patchSize,
-                stride: config.patchSize,
-                padding: 0,
+                inputChannels: 3,
+                outputChannels: config.hiddenSize,
+                kernelSize: .single(config.patchSize),
+                stride: .single(config.patchSize),
+                padding: .single(0),
                 bias: true
             )
         }
@@ -654,11 +654,12 @@ public class Gemma3Processor: UserInputProcessor {
         }
         
         // For Gemma3, get the last message content
-        var prompt = input.prompt.asMessages().last?["content"] ?? ""
+        var prompt = input.prompt.asMessages().last?["content"] as? String ?? ""
         
         // Insert image tokens at the beginning of the prompt
         let count = input.images.count * config.imageSequenceLength
-        prompt = Array(repeating: "<image>", count: count).joined() + (tokenizer.bosToken ?? "") + prompt
+        let bosToken = tokenizer.bosToken ?? ""
+        prompt = Array(repeating: "<image>", count: count).joined() + bosToken + prompt
         
         let promptTokens = try tokenizer.encode(text: prompt)
         let promptArray = MLXArray(promptTokens).expandedDimensions(axis: 0)
