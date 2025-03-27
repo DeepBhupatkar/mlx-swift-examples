@@ -6,7 +6,7 @@ import MLX
 import MLXLMCommon
 import Tokenizers
 
-public enum VLMError: LocalizedError {
+public enum VLMError: Error {
     case imageRequired
     case maskRequired
     case singleImageAllowed
@@ -14,25 +14,6 @@ public enum VLMError: LocalizedError {
     case singleMediaTypeAllowed
     case imageProcessingFailure(String)
     case processing(String)
-
-    public var errorDescription: String? {
-        switch self {
-        case .imageRequired:
-            return String(localized: "An image is required for this operation.")
-        case .maskRequired:
-            return String(localized: "An image mask is required for this operation.")
-        case .singleImageAllowed:
-            return String(localized: "Only a single image is allowed for this operation.")
-        case .singleVideoAllowed:
-            return String(localized: "Only a single video is allowed for this operation.")
-        case .singleMediaTypeAllowed:
-            return String(localized: "Only a single media type (image or video) is allowed for this operation.")
-        case .imageProcessingFailure(let details):
-            return String(localized: "Failed to process the image: \(details)")
-        case .processing(let details):
-            return String(localized: "Processing error: \(details)")
-        }
-    }
 }
 
 public struct BaseProcessorConfiguration: Codable, Sendable {
@@ -139,30 +120,24 @@ public class VLMRegistry: AbstractModelRegistry, @unchecked Sendable {
         defaultPrompt:
             "What is the main action or notable event happening in this segment? Describe it in one brief sentence."
     )
-
-    static public let gemma3_4b_it_4bit = ModelConfiguration(
+    
+    static public let smolvlminstruct4bit = ModelConfiguration(
+        id: "mlx-community/SmolVLM-Instruct-4bit",
+        defaultPrompt: "Describe the image in English"
+    )
+    static public let gemma3_4B_it_4bit = ModelConfiguration(
         id: "mlx-community/gemma-3-4b-it-4bit",
         defaultPrompt: "Describe the image in English"
+//        extraEOSTokens: ["<end_of_turn>"]
     )
 
-    static public let gemma3_12b_it_8bit = ModelConfiguration(
-        id: "mlx-community/gemma-3-12b-it-8bit",
-        defaultPrompt: "Describe the image in English"
-    )
-
-    static public let gemma3_27b_it_8bit = ModelConfiguration(
-        id: "mlx-community/gemma-3-27b-it-8bit",
-        defaultPrompt: "Describe the image in English"
-    )
-
-    static private func all() -> [ModelConfiguration] {
+    static public func all() -> [ModelConfiguration] {
         [
             paligemma3bMix448_8bit,
             qwen2VL2BInstruct4Bit,
-            smolvlm,
-            gemma3_4b_it_4bit,
-            gemma3_12b_it_8bit,
-            gemma3_27b_it_8bit,
+            smolvlminstruct4bit,
+            gemma3_4B_it_4bit,
+            smolvlm
         ]
     }
 
