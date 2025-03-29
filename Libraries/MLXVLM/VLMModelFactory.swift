@@ -122,7 +122,7 @@ public class VLMRegistry: AbstractModelRegistry, @unchecked Sendable {
     )
     
     static public let smolvlminstruct4bit = ModelConfiguration(
-        id: "mlx-community/SmolVLM-Instruct-4bit",
+        id: "mlx-community/SmolVLM2-256M-Video-Instruct-mlx",
         defaultPrompt: "Describe the image in English"
     )
     static public let gemma3_4B_it_4bit = ModelConfiguration(
